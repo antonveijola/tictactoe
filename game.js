@@ -1,3 +1,4 @@
+// gameboard IIFE factory (need only one instance)
 const gameboard = (function () {
   const board = new Array(9).fill(null);
 
@@ -13,12 +14,10 @@ const gameboard = (function () {
   const getMarker = (index) => board[index];
 
   const checkTie = () => {
-    return !checkWinner() && board.every((cell) => getMarker() !== null);
+    return !checkWinner() && board.every((cell) => cell !== null);
   };
 
   const checkWinner = () => {
-    let isWinner = false;
-
     const winConditions = [
       [0, 1, 2],
       [3, 4, 5],
@@ -34,15 +33,14 @@ const gameboard = (function () {
       const [index1, index2, index3] = winCondition;
 
       if (
-        board[index1].getMarker() &&
+        board[index1] &&
         board[index1] === board[index2] &&
         board[index1] === board[index3]
       ) {
-        isWinner = true;
-        break;
+        return true;
       }
     }
-    return isWinner;
+    return false;
   };
 
   return {
@@ -55,6 +53,7 @@ const gameboard = (function () {
   };
 })();
 
+// Player factory (need many instances)
 function createPlayer(name, marker) {
   const getName = () => name;
   const setName = (newName) => (name = newName);
@@ -63,24 +62,45 @@ function createPlayer(name, marker) {
   return { getName, setName, getMarker };
 }
 
-// GameController
+// GameController IIFE factory (need only one instance)
 const gameController = (function () {
-  const player1 = createPlayer("player1", "X");
-  const player2 = createPlayer("player2", "O");
-  let activePlayer = player1;
-  let gameOver = false;
+  let isGameover;
+  let activePlayer;
+  let player1;
+  let player2;
+
+  const playGame = (playerNames) => {
+    isGameover = false;
+    gameboard.clearBoard();
+    setPlayers(playerNames);
+    displayController.drawBoard();
+    changeActivePlayer();
+  };
+
+  const setPlayers = (playerNames) => {
+    const [name1, name2] = playerNames;
+    player1 = createPlayer(name1, "X");
+    player2 = createPlayer(name2, "O");
+  };
 
   const playRound = (index) => {
+    if (isGameover) {
+      gameOver();
+      return;
+    }
+
     try {
       gameboard.setMarker(index, activePlayer.getMarker());
       displayController.placeMarker(index, activePlayer.getMarker());
 
       if (gameboard.checkWinner()) {
-        console.log("the winner is", activePlayer.getMarker());
-        gameOver = true;
-      } else if (gameboard.checkTie()) {
-        console.log("the game was tie");
-        gameOver = true;
+        gameOver(activePlayer);
+        return;
+      }
+
+      if (gameboard.checkTie()) {
+        gameOver();
+        return;
       }
 
       changeActivePlayer();
@@ -90,23 +110,44 @@ const gameController = (function () {
     }
   };
 
+  const gameOver = (winner = null) => {
+    isGameover = true;
+    displayController.gameOver(winner);
+  };
+
   const changeActivePlayer = () => {
     activePlayer = activePlayer === player1 ? player2 : player1;
   };
 
-  const playAgain = () => {
-    gameboard.clearBoard();
-    gameOver = false;
-    changeActivePlayer();
-  };
-
-  return { playRound, playAgain };
+  return { playRound, playGame, setPlayers };
 })();
 
+// displayController IIFE factory (need only one instance)
 displayController = (function () {
+  const startBtn = document.querySelector(".start-btn");
+  const optionsDiv = document.querySelector(".options");
+
+  startBtn.addEventListener("click", () => {
+    const player1name = document.querySelector("#player1-name").value;
+    const player2name = document.querySelector("#player2-name").value;
+    
+    console.log(player1name)
+    console.log(player2name)
+    if (!player1name || !player2name) {
+      alert("need to add both player names!");
+      return;
+    }
+    
+    optionsDiv.classList.add("hidden");
+    gameController.playGame([player1name, player2name]);
+  });
+
   const drawBoard = () => {
-    const gameboardElement = document.querySelector(".gameboard");
-    gameboardElement.innerHTML = "";
+    const gameContainer = document.querySelector(".game");
+    gameContainer.innerHTML = "";
+
+    const gameboardElement = document.createElement("div");
+    gameboardElement.classList.add("gameboard");
 
     for (const [i, cell] of gameboard.getGameboard().entries()) {
       const cellElement = document.createElement("div");
@@ -116,18 +157,27 @@ displayController = (function () {
         gameController.playRound(i);
       });
       gameboardElement.appendChild(cellElement);
+      gameContainer.appendChild(gameboardElement);
     }
   };
 
   const placeMarker = (index, marker) => {
     const cells = Array.from(document.querySelectorAll(".cell"));
     cells[index].textContent = marker;
-    console.log(cells[index].textContent);
-    console.log(gameboard.getGameboard());
     drawBoard();
   };
 
-  drawBoard();
+  const gameOver = (player = null) => {
+    const resultDiv = document.querySelector(".result");
 
-  return { drawBoard, placeMarker };
+    resultDiv.textContent = player
+      ? `The winner is ${player.getName()} (${player.getMarker()})!`
+      : "The game was tie!";
+
+    const startBtn = document.querySelector(".start-btn");
+    startBtn.textContent = "Play again?";
+    optionsDiv.classList.toggle("hidden");
+  };
+
+  return { drawBoard, placeMarker, gameOver };
 })();

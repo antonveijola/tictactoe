@@ -4,12 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic tac toe</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <h1>tic tac toe</h1>
-    <div class="gameboard">
+    <div class="options">
+      <button class="start-btn">Start game</button>
+      <div class="player-setting">
+        <label for="">X</label>
+        <input id="player1-name" type="text" name="player1-name" required />
+      </div>
+      <div class="player-setting">
+        <label for="">O</label>
+        <input id="player2-name" type="text" name="player2-name" required />
+      </div>
+      <div class="result"></div>
     </div>
+    <div class="game"></div>
     <script src="game.js"></script>
   </body>
 </html>

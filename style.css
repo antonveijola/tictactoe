@@ -9,24 +9,90 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: black;
+  color: white;
+}
+
+h1 {
+  margin: 25px 0;
+  font-size: 2rem;
+  text-transform: uppercase;
 }
 
 .cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 4rem;
   border: 1px solid black;
   cursor: pointer;
-  color: black;
+  background-color: whitesmoke;
+  color: blue;
+  font-weight: bold;
 }
 
 .cell:hover {
-  border: 3px solid blue;
+  background-color: 3px solid rgba(173, 255, 50, 0.199);
 }
 .gameboard {
   display: grid;
-  border: 3px solid red;
+  border: 3px solid greenyellow;
   grid: repeat(3, 100px) / repeat(3, 100px);
   margin: 0 auto;
+}
+
+.options {
+  display: flex;
+  gap: 4px;
+  flex-direction: column;
+  padding: 15px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 1px solid greenyellow;
+}
+
+.options .player-setting {
+  display: flex;
+  gap: 8px;
+}
+
+.result {
+  margin-top: 10px;
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: red;
+}
+
+.start-btn {
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-size: 18px;
+  background-color: greenyellow;
+}
+
+.player-setting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-setting input {
+  border: none;
+  padding: 4px;
+  font-size: 1.5rem;
+  gap: 4px;
+  outline: none;
+}
+
+.player-setting label {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
 }
